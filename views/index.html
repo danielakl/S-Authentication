@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Authentication</title>
+
+    <script defer src="login.js"></script>
+</head>
+<body>
+    <form id="loginForm" action="/login" method="post">
+        <label for="username">Username: </label>
+        <input id="username" type="text" name="username" required>
+
+        <label for="password">Password: </label>
+        <input id="password" type="password" name="password" required>
+
+        <input value="Login" type="submit">
+    </form>
+</body>
+</html>

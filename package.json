@@ -1,0 +1,26 @@
+{
+  "name": "authentication",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An authentication demo, hashing with salt for passwords both on the client-, and serverside.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielakl/S-Authentication.git"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "crypto": "^1.0.1",
+    "express": "^4.16.3",
+    "mysql2": "^1.6.1"
+  },
+  "author": "Daniel Aune Klock",
+  "licence": "MIT",
+  "bugs": {
+    "url": "https://github.com/danielakl/S-Authentication/issues"
+  },
+  "homepage": "https://github.com/danielakl/S-Authentication#readme"
+}
