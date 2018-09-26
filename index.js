@@ -9,12 +9,13 @@ const server = express();
 server.use(express.static(path.join(__dirname, "public")));
 server.use(express.json());
 
-let dbConn;
+/*let dbConn;
 try {
     dbConn = mysql.createConnection({host: 'localhost', user: 'root', database: 'auth'});
 } catch (e) {
     console.error(e);
 }
+*/
 
 server.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "index.html"));
@@ -22,7 +23,7 @@ server.get("/", (req, res) => {
 
 server.post("/login", (req, res) => {
     const {username, hash} = req.body;
-    console.dir(req.body);
+    //console.dir(req.body);
     console.log(`Username: ${username}\nHash: ${hash}`);
     if (!username || !hash) {
         res.status(400).json({
@@ -31,9 +32,14 @@ server.post("/login", (req, res) => {
             message: "Username and password needed."
         });
     } else {
-        if (dbConn) {
+    //    if (dbConn) {
 
-        }
+    //    }
+        res.status(200).json ({
+          code: 200,
+          status:"is alright",
+          message : "thats a good client"
+        });
     }
 });
 
