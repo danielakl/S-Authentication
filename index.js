@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
 // Login route
 app.post("/login", (req, res) => {
     const {username, hash} = req.body;
-    console.log(`Username: ${username}\nHash: ${hash}`);
+    console.log(`Username from client: ${username}\nHash from client: ${hash}`);
     if (!username || !hash) {
         res.status(400).json({
             code: 400,
@@ -54,8 +54,8 @@ app.post("/login", (req, res) => {
                     if (err) {
                         throw err;
                     }
-                    console.log(user.hash);
-                    console.log(key.toString("hex"));
+                    console.log(`Hash from database ${user.hash}`);
+                    console.log(`Hash generated on server ${key.toString("hex")}`);
                     if (user.hash === key.toString("hex")) {
                         res.json({
                             code: 200,
