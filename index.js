@@ -1,18 +1,20 @@
 "use strict";
 
 const express = require("express");
-const bodyParser = require("body-parser");
 const path = require("path");
 const crypto = require("crypto");
 const mysql = require("mysql2");
 
 const server = express();
 server.use(express.static(path.join(__dirname, "public")));
-//server.use(bodyParser.urlencoded({extended: false}));
 server.use(express.json());
 
-// const dbConn = mysql.createConnection({host: 'localhost', user: 'root', database: 'auth'});
-
+let dbConn;
+try {
+    dbConn = mysql.createConnection({host: 'localhost', user: 'root', database: 'auth'});
+} catch (e) {
+    console.error(e);
+}
 
 server.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "index.html"));
