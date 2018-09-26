@@ -20,6 +20,14 @@ app.use(express.json());
 //         console.error("Failed to connect to MySQL server.")
 //     });
 
+function toByteArray(hexString) {
+    var result = "";
+    while (hexString.length >= 2) {
+        result += String.fromCharCode(parseInt(hexString.substring(0, 2), 16));
+        hexString = hexString.substring(2, hexString.length);
+    }
+    return result;
+}
 
 // Index route
 app.get("/", (req, res) => {
@@ -32,10 +40,10 @@ app.get("/", (req, res) => {
 
 // Login route
 app.post("/login", (req, res) => {
-    const {username, hash} = req.body;
-    console.log(`Username from client: ${username}\nHash from client: ${hash}`);
-    if (!username || !hash) {
-        res.status(400).json({
+    const {username, password} = req.body;
+    console.log(`Username from client: ${username}\nHash from client:\t\t\t${password}`);
+    if (!username || !password) {
+        return res.status(400).json({
             code: 400,
             status: "Bad Request",
             message: "Missing username or password."
@@ -50,20 +58,20 @@ app.post("/login", (req, res) => {
                 return element.username === username;
             });
             if (user) {
-                crypto.pbkdf2(hash, user.salt, 100000, 64, "sha512", (err, key) => {
+                crypto.pbkdf2(password, toByteArray(user.salt), 100000, 64, "sha512", (err, hash) => {
                     if (err) {
                         throw err;
                     }
-                    console.log(`Hash from database ${user.hash}`);
-                    console.log(`Hash generated on server ${key.toString("hex")}`);
-                    if (user.hash === key.toString("hex")) {
-                        res.json({
+                    console.log(`Hash from database:\t\t\t${user.hash}`);
+                    console.log(`Hash generated on server:\t${hash.toString("hex")}`);
+                    if (user.hash === hash.toString("hex")) {
+                        return res.json({
                             code: 200,
                             status: "OK",
                             message: "Authorization succeeded."
                         });
                     } else {
-                        res.status(401).json({
+                        return res.status(401).json({
                             code: 401,
                             status: "Unauthorized",
                             message: "Username or password is wrong."
@@ -71,10 +79,79 @@ app.post("/login", (req, res) => {
                     }
                 });
             } else {
-                res.status(401).json({
+                return res.status(401).json({
                     code: 401,
                     status: "Unauthorized",
                     message: "Username or password is wrong."
+                });
+            }
+        });
+    }
+});
+
+// Register form route
+app.get("/register", (req, res) => {
+    res.sendFile(path.join(__dirname, "views", "register.html"));
+});
+
+// Register logic route
+app.post("/register", (req, res) => {
+    const {username, password, passwordRepeat} = req.body;
+    console.log(`Username from client: ${username}\nHash from client:\t\t\t${password}\nRepeated hash from client:\t${passwordRepeat}`);
+    if (!username || !password) {
+        return res.status(400).json({
+            code: 400,
+            status: "Bad Request",
+            message: "Missing username or password."
+        });
+    } else {
+        fs.readFile(path.join(__dirname, "user.json"), {encoding: "utf8"}, (err, users) => {
+            if (err) {
+                throw err;
+            }
+            users = JSON.parse(users);
+            const user = users.find(element => {
+                return element.username === username;
+            });
+            if (!user) {
+                if (password === passwordRepeat) {
+                    crypto.randomBytes(16, (err, salt) => {
+                        if (err) {
+                            throw err;
+                        }
+                        crypto.pbkdf2(password, salt, 100000, 64, "sha512", (err, hash) => {
+                            if (err) {
+                                throw err;
+                            }
+                            users.push({
+                                username,
+                                salt: salt.toString("hex"),
+                                hash: hash.toString("hex")
+                            });
+                            fs.writeFile(path.join(__dirname, "user.json"), JSON.stringify(users), "utf8", err => {
+                                if (err) {
+                                    throw err;
+                                }
+                                return res.json({
+                                    code: 200,
+                                    status: "OK",
+                                    message: "Successfully created user."
+                                });
+                            });
+                        });
+                    });
+                } else {
+                    return res.status(409).json({
+                        code: 409,
+                        status: "Conflict",
+                        message: "The passwords does not match."
+                    });
+                }
+            } else {
+                return res.status(409).json({
+                    code: 409,
+                    status: "Conflict",
+                    message: "There is already a user with that username."
                 });
             }
         });

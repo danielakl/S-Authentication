@@ -1,12 +1,13 @@
-var form = document.querySelector("#loginForm");
+var form = document.querySelector("#registerForm");
 var usernameInput = document.querySelector("#usernameInput");
 var passwordInput = document.querySelector("#passwordInput");
+var passwordRepeatInput = document.querySelector("#passwordRepeatInput");
 var body = document.querySelector("body");
 
 form.onsubmit = function(event) {
     event.preventDefault();
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/login", true);
+    xhr.open("POST", "/register", true);
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.onload = function (e) {
         if (this.readyState === 4) {
@@ -27,7 +28,8 @@ form.onsubmit = function(event) {
     };
     xhr.send(JSON.stringify({
         username: usernameInput.value,
-        password: CryptoJS.PBKDF2(passwordInput.value, usernameInput.value, { keySize: 16, iterations: 1000 }).toString()
+        password: CryptoJS.PBKDF2(passwordInput.value, usernameInput.value, { keySize: 16, iterations: 1000 }).toString(),
+        passwordRepeat: CryptoJS.PBKDF2(passwordRepeatInput.value, usernameInput.value, { keySize: 16, iterations: 1000 }).toString()
     }));
 
     console.log("Username: " + usernameInput.value);
