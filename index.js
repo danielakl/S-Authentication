@@ -8,7 +8,8 @@ const mysql = require("mysql2");
 
 const server = express();
 server.use(express.static(path.join(__dirname, "public")));
-server.use(bodyParser.urlencoded({extended: true}));
+//server.use(bodyParser.urlencoded({extended: false}));
+server.use(express.json());
 
 // const dbConn = mysql.createConnection({host: 'localhost', user: 'root', database: 'auth'});
 
@@ -19,6 +20,7 @@ server.get("/", (req, res) => {
 
 server.post("/login", (req, res) => {
     const {username, hash} = req.body;
+    console.dir(req.body);
     console.log(`Username: ${username}\nHash: ${hash}`);
     if (!username || !hash) {
         res.status(400).json({
