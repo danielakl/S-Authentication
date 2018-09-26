@@ -14,11 +14,9 @@
     "url": "git+https://github.com/danielakl/S-Authentication.git"
   },
   "dependencies": {
-    "body-parser": "^1.18.3",
     "crypto": "^1.0.1",
     "express": "^4.16.3",
-    "jsonwebtoken": "^8.3.0",
-    "mysql2": "^1.6.1"
+    "jsonwebtoken": "^8.3.0"
   },
   "author": "Daniel Aune Klock",
   "licence": "MIT",
