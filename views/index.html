@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Authentication</title>
 
+    <script defer src="pbkdf2.js"></script>
     <script defer src="login.js"></script>
 </head>
 <body>
     <form id="loginForm" action="/login" method="post">
-        <label for="username">Username: </label>
-        <input id="username" type="text" name="username" required>
-
-        <label for="password">Password: </label>
-        <input id="password" type="password" name="password" required>
-
+        <label for="usernameInput">Username: </label>
+        <input id="usernameInput" type="text" name="username" required>
+        <br>
+        <label for="passwordInput">Password: </label>
+        <input id="passwordInput" type="password" name="password" required>
+        <br>
         <input value="Login" type="submit">
     </form>
 </body>
