@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./index",
-    "seeds": "node ./seeds"
+    "seed": "node ./seeds"
 
   },
   "repository": {
