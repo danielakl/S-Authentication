@@ -5,7 +5,9 @@
   "description": "An authentication demo, hashing with salt for passwords both on the client-, and serverside.",
   "main": "index.js",
   "scripts": {
-    "start": "node ./index"
+    "start": "node ./index",
+    "seeds": "node ./seeds"
+
   },
   "repository": {
     "type": "git",
@@ -15,6 +17,7 @@
     "body-parser": "^1.18.3",
     "crypto": "^1.0.1",
     "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
     "mysql2": "^1.6.1"
   },
   "author": "Daniel Aune Klock",

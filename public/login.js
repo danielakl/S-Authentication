@@ -29,9 +29,9 @@ form.onsubmit = function(event) {
     };
     xhr.send(JSON.stringify({
         username: usernameInput.value,
-        hash: CryptoJS.PBKDF2(passwordInput.value, salt, { keySize: 512/32, iterations: 1000 }).toString()
+        hash: CryptoJS.PBKDF2(passwordInput.value, usernameInput.value, { keySize: 512/32, iterations: 1000 }).toString()
     }));
 
     console.log(usernameInput.value);
-    console.log(CryptoJS.PBKDF2(passwordInput.value, salt, { keySize: 512/32, iterations: 1000 }).toString());
+    console.log(CryptoJS.PBKDF2(passwordInput.value, usernameInput.value, { keySize: 512/32, iterations: 1000 }).toString());
 };
