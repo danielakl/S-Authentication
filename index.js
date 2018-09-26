@@ -41,28 +41,42 @@ app.post("/login", (req, res) => {
             message: "Missing username or password."
         });
     } else {
-        let users = JSON.parse(fs.readFileSync("./user.json", "UTF-8"));
-
-        users.forEach((el) => {
-            console.log("else username:" + el.username);
-            if (el.username === username){
-                let salt = el.salt;
-                let hash2 = crypto.pbkdf2Sync(hash, salt, 2048, 512/32, "sha256").toString("hex");
-                console.log(el.hash);
-                console.log(hash2);
-                if (hash2 === el.hash){
-                    return res.json({
-                        code: 200,
-                        status: "OK",
-                        message: "Authorization succeeded."
-                    });
-                }
+        fs.readFile(path.join(__dirname, "user.json"), {encoding: "utf8"}, (err, users) => {
+            if (err) {
+                throw err;
             }
-        });
-        res.status(401).json({
-            code: 401,
-            status: "Unauthorized",
-            message: "Username or password is wrong."
+            users = JSON.parse(users);
+            const user = users.find(element => {
+                return element.username === username;
+            });
+            if (user) {
+                crypto.pbkdf2(hash, user.salt, 100000, 64, "sha512", (err, key) => {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log(user.hash);
+                    console.log(key.toString("hex"));
+                    if (user.hash === key.toString("hex")) {
+                        res.json({
+                            code: 200,
+                            status: "OK",
+                            message: "Authorization succeeded."
+                        });
+                    } else {
+                        res.status(401).json({
+                            code: 401,
+                            status: "Unauthorized",
+                            message: "Username or password is wrong."
+                        });
+                    }
+                });
+            } else {
+                res.status(401).json({
+                    code: 401,
+                    status: "Unauthorized",
+                    message: "Username or password is wrong."
+                });
+            }
         });
     }
 });

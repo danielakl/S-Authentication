@@ -21,13 +21,13 @@ let users = [{
 
 users = users.map(user => {
     const {username, password} = user;
-    const hash = crypto.pbkdf2Sync(password, username, 1000, 512/32, "sha1");
+    const hash = crypto.pbkdf2Sync(password, username, 1000, 16, "sha1");
     const salt = crypto.randomBytes(16);
     // console.log(hash.toString("hex"));
     return {
         username,
         salt: salt.toString('hex'),
-        hash: crypto.pbkdf2Sync(hash, salt, 2048, 512/32, "sha256").toString("hex")
+        hash: crypto.pbkdf2Sync(hash, salt, 100000, 64, "sha512").toString("hex")
     }
 });
 
