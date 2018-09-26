@@ -1,47 +1,40 @@
 "use strict";
 
-const express = require("express");
-const path = require("path");
 const crypto = require("crypto");
 const fs = require('fs');
 
 
-var users = [
-  {
-    "username": "kristian",
-    "password": "123456",
-    "salt": "HEI",
-    "hash": null
-  },
-  {
-    "username": "kristoffer",
-    "password": "xx666666xx",
-    "salt": "HADE",
-    "hash":null
-  },
-  {
-    "username": "roy",
-    "password": "hallo",
-    "salt": "SYLTHE",
-    "hash": null
-  },
-  {
-    "username": "daniel",
-    "password": "brabra",
-    "salt": "NEI",
-    "hash": "null"
-  }
-]
+let users = [{
+        username: "kristian",
+        password: "123456"
+    }, {
+        username: "kristoffer",
+        password: "xx666666xx"
+    }, {
+        username: "roy",
+        password: "hallo"
+    }, {
+        username: "daniel",
+        password: "hunter2"
+    }
+];
 
+users = users.map(user => {
+    const {username, password} = user;
+    const hash = crypto.pbkdf2Sync(password, username, 1000, 512/32, "sha1");
+    const salt = crypto.randomBytes(16);
+    // console.log(hash.toString("hex"));
+    return {
+        username,
+        salt: salt.toString('hex'),
+        hash: crypto.pbkdf2Sync(hash, salt, 2048, 512/32, "sha256").toString("hex")
+    }
+});
 
-for (var i = 0; i < users.length; i++){
-  var hash1 = crypto.pbkdf2Sync(users[i].password, users[i].username, 1000, 512/32, "sha1");
-  console.log(hash1.toString("hex"));
-  var hash2 = crypto.pbkdf2Sync(hash1, users[i].salt, 2048, 512/32, "sha256").toString("hex");
-  users[i].hash = hash2;
-
-}
-console.log(users);
-fs.writeFile("./user.json", JSON.stringify(users),"UTF-8", function(){
-  console.log("Ferdig");
+// console.log(users);
+fs.writeFile("./user.json", JSON.stringify(users), "utf8", err => {
+    if (err) {
+        throw err;
+    }
+    console.log("Generated 'user.json' file.");
 });
