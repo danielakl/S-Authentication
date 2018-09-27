@@ -6,8 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./index",
-    "seed": "node ./seeds"
-
+    "setup": "node ./setup"
   },
   "repository": {
     "type": "git",
@@ -23,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/danielakl/S-Authentication/issues"
   },
-  "homepage": "https://github.com/danielakl/S-Authentication#readme"
+  "homepage": "https://github.com/danielakl/S-Authentication#readme",
+  "devDependencies": {
+    "dotenv": "^6.0.0"
+  }
 }
