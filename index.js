@@ -75,7 +75,7 @@ app.post("/login", (req, res) => {
                             if (err) {
                                 console.error(`Error signing JWT\n${err}`);
                             } else {
-                                res.headers.authorization = `Bearer ${token}`;
+                                req.headers.authorization = `Bearer ${token}`;
                             }
                             console.log(`Token: ${token}`);
                             return res.json({
