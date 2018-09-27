@@ -4,28 +4,33 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
-// const mysql = require("mysql2/promise");
-const fs = require('fs');
+const fs = require("fs");
+const jwt = require("jsonwebtoken");
+const jwtMiddleware = require("express-jwt");
 
 const app = express();
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
-// Connect to MySQL database.
-// let dbConn;
-// mysql.createConnection({host: 'localhost', user: 'root', database: 'auth'})
-//     .then(connection => {
-//         dbConn = connection;
-//         console.log("Connected to MySQL server.")
-//     }).catch(() => {
-//         console.error("Failed to connect to MySQL server.")
-//     });
+// Middleware function to secure home area.
+app.use("/home", jwtMiddleware({
+    secret: process.env.SECRET_TOKEN,
+    getToken: function(req) {
+        if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+            return req.headers.authorization.split(' ')[1];
+        }
+        return null;
+    }
+}));
 
 // Index route
 app.get("/", (req, res) => {
-    if (true){
-        res.sendFile(path.join(__dirname, "views", "index.html"));
-    } else {
+    res.sendFile(path.join(__dirname, "views", "index.html"));
+});
+
+// Protected home area
+app.get("/home", (req, res) => {
+    if (req.user) {
         res.sendFile(path.join(__dirname, "views", "home.html"));
     }
 });
@@ -58,10 +63,18 @@ app.post("/login", (req, res) => {
                     console.log(`Hash from database:\t\t\t${user.hash}`);
                     console.log(`Hash generated on server:\t${hash.toString("hex")}`);
                     if (user.hash === hash.toString("hex")) {
-                        return res.json({
-                            code: 200,
-                            status: "OK",
-                            message: "Authorization succeeded."
+                        jwt.sign({ username }, process.env.SECRET_TOKEN, { expiresIn: '24h' }, (err, token) => {
+                            if (err) {
+                                console.error(`Error signing JWT\n${err}`);
+                            } else {
+                                res.headers.authorization = `Bearer ${token}`;
+                            }
+                            console.log(`Token: ${token}`);
+                            return res.json({
+                                code: 200,
+                                status: "OK",
+                                message: "Authorization succeeded."
+                            });
                         });
                     } else {
                         return res.status(401).json({
