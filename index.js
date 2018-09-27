@@ -20,15 +20,6 @@ app.use(express.json());
 //         console.error("Failed to connect to MySQL server.")
 //     });
 
-function toByteArray(hexString) {
-    var result = "";
-    while (hexString.length >= 2) {
-        result += String.fromCharCode(parseInt(hexString.substring(0, 2), 16));
-        hexString = hexString.substring(2, hexString.length);
-    }
-    return result;
-}
-
 // Index route
 app.get("/", (req, res) => {
     if (true){
