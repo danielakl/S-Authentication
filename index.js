@@ -7,22 +7,29 @@ const path = require("path");
 const crypto = require("crypto");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
-const jwtMiddleware = require("express-jwt");
+// const expressJWT = require("express-jwt");
 
 const app = express();
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
 // Middleware function to secure home area.
-app.use("/home", jwtMiddleware({
-    secret: process.env.SECRET_TOKEN,
-    getToken: function(req) {
-        if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-            return req.headers.authorization.split(' ')[1];
-        }
-        return null;
+function verifyToken(req, res, next) {
+    const bearerHeader = req.headers.authorization;
+
+    if (bearerHeader) {
+        const bearerToken = bearerHeader.split(' ')[1];
+        jwt.verify(bearerToken, process.env.SECRET_TOKEN, (err, authData) => {
+            if (err) {
+                res.redirect("/");
+            } else {
+                next();
+            }
+        });
+    } else {
+        res.redirect("/");
     }
-}));
+}
 
 let sslOptions = {
     key: fs.readFileSync(path.join(__dirname, "localhost.key")),
@@ -37,10 +44,8 @@ app.get("/", (req, res) => {
 });
 
 // Protected home area
-app.get("/home", (req, res) => {
-    if (req.user) {
-        res.sendFile(path.join(__dirname, "views", "home.html"));
-    }
+app.get("/home", verifyToken, (req, res) => {
+    res.sendFile(path.join(__dirname, "views", "home.html"));
 });
 
 // Login route
@@ -71,7 +76,7 @@ app.post("/login", (req, res) => {
                     console.log(`Hash from database:\t\t${user.hash}`);
                     console.log(`Hash generated on server:\t${hash.toString("hex")}`);
                     if (user.hash === hash.toString("hex")) {
-                        jwt.sign({ username }, process.env.SECRET_TOKEN, { expiresIn: '24h' }, (err, token) => {
+                        jwt.sign({username}, process.env.SECRET_TOKEN, {expiresIn: '24h'}, (err, token) => {
                             if (err) {
                                 console.error(`Error signing JWT\n${err}`);
                             } else {
@@ -81,7 +86,8 @@ app.post("/login", (req, res) => {
                             return res.json({
                                 code: 200,
                                 status: "OK",
-                                message: "Authorization succeeded."
+                                message: "Authorization succeeded.",
+                                token
                             });
                         });
                     } else {

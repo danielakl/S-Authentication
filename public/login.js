@@ -13,6 +13,7 @@ form.onsubmit = function(event) {
             var response = JSON.parse(this.responseText);
             if (this.status === 200) {
                 body.innerHTML = response.message;
+                localStorage.setItem('token', `Bearer ${response.token}`);
                 console.log(response.message);
             } else {
                 body.innerHTML = response.message;
