@@ -58,7 +58,8 @@ app.post("/login", (req, res) => {
                 return element.username === username;
             });
             if (user) {
-                crypto.pbkdf2(password, toByteArray(user.salt), 100000, 64, "sha512", (err, hash) => {
+                console.log("login salt:" + user.salt.toString("hex"));
+                crypto.pbkdf2(password, user.salt.toString("hex"), 100000, 64, "sha512", (err, hash) => {
                     if (err) {
                         throw err;
                     }
@@ -119,7 +120,8 @@ app.post("/register", (req, res) => {
                         if (err) {
                             throw err;
                         }
-                        crypto.pbkdf2(password, salt, 100000, 64, "sha512", (err, hash) => {
+                        console.log("Salt from register" + salt.toString("hex"));
+                        crypto.pbkdf2(password, salt.toString("hex"), 100000, 64, "sha512", (err, hash) => {
                             if (err) {
                                 throw err;
                             }
