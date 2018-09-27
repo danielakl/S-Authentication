@@ -7,26 +7,32 @@ const path = require("path");
 const crypto = require("crypto");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
-// const expressJWT = require("express-jwt");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
+app.use(cookieParser(process.env.SECRET_COOKIE));
 
 // Middleware function to secure home area.
 function verifyToken(req, res, next) {
-    const bearerHeader = req.headers.authorization;
+    console.log('Signed Cookies: ', req.signedCookies);
+    const bearerHeader = req.headers.authorization || req.signedCookies.token;
 
     if (bearerHeader) {
         const bearerToken = bearerHeader.split(' ')[1];
         jwt.verify(bearerToken, process.env.SECRET_TOKEN, (err, authData) => {
             if (err) {
+                console.error("Invalid access token.");
                 res.redirect("/");
             } else {
+                console.log("Valid access token.");
+                req.user = authData;
                 next();
             }
         });
     } else {
+        console.error("No access token provided.");
         res.redirect("/");
     }
 }
@@ -38,12 +44,12 @@ let sslOptions = {
     rejectUnauthorized: false
 };
 
-// Index route
+// Index route.
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "index.html"));
 });
 
-// Protected home area
+// Protected home area.
 app.get("/home", verifyToken, (req, res) => {
     res.sendFile(path.join(__dirname, "views", "home.html"));
 });
@@ -76,18 +82,26 @@ app.post("/login", (req, res) => {
                     console.log(`Hash from database:\t\t${user.hash}`);
                     console.log(`Hash generated on server:\t${hash.toString("hex")}`);
                     if (user.hash === hash.toString("hex")) {
+                        // ExpiresIn: Short lived is more secure.
                         jwt.sign({username}, process.env.SECRET_TOKEN, {expiresIn: '24h'}, (err, token) => {
                             if (err) {
                                 console.error(`Error signing JWT\n${err}`);
-                            } else {
-                                req.headers.authorization = `Bearer ${token}`;
+                                return res.status(500).json({
+                                    code: 500,
+                                    status: "Internal server error",
+                                    message: "Failed to create access token."
+                                });
                             }
+                            // MaxAge: No longer than token lifetime, for better security.
+                            // Secure: Instructs browser to only send the cookie over HTTPS connection.
+                            // HttpOnly: Only accessible over HTTP/HTTPS, not accessible through client side javascript.
+                            res.cookie("token", `Bearer ${token}`, {maxAge: 24 * 60 * 60, secure: true, httpOnly: true, signed: true});
                             console.log(`Token: ${token}`);
                             return res.json({
                                 code: 200,
                                 status: "OK",
                                 message: "Authorization succeeded.",
-                                token
+                                token: `Bearer ${token}`
                             });
                         });
                     } else {
