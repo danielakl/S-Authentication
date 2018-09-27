@@ -107,13 +107,16 @@ app.post("/register", (req, res) => {
         });
     } else {
         fs.readFile(path.join(__dirname, "user.json"), {encoding: "utf8"}, (err, users) => {
+            let user;
             if (err) {
-                throw err;
+                console.error("Error reading 'user.json' file");
+                users = [];
+            } else {
+                users = JSON.parse(users);
+                user = users.find(element => {
+                    return element.username === username;
+                });
             }
-            users = JSON.parse(users);
-            const user = users.find(element => {
-                return element.username === username;
-            });
             if (!user) {
                 if (password === passwordRepeat) {
                     crypto.randomBytes(16, (err, salt) => {
