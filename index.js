@@ -1,6 +1,7 @@
 "use strict";
 
 const express = require("express");
+const https = require('https');
 const path = require("path");
 const crypto = require("crypto");
 // const mysql = require("mysql2/promise");
@@ -20,9 +21,17 @@ app.use(express.json());
 //         console.error("Failed to connect to MySQL server.")
 //     });
 
+let sslOptions = {
+    key: fs.readFileSync(path.join(__dirname, "localhost.key")),
+    cert: fs.readFileSync(path.join(__dirname, "localhost.cert")),
+    requestCert: false,
+    rejectUnauthorized: false
+};
+
 // Index route
+// TODO: Token stuff probably.
 app.get("/", (req, res) => {
-    if (true){
+    if (true) {
         res.sendFile(path.join(__dirname, "views", "index.html"));
     } else {
         res.sendFile(path.join(__dirname, "views", "home.html"));
@@ -32,7 +41,7 @@ app.get("/", (req, res) => {
 // Login route
 app.post("/login", (req, res) => {
     const {username, password} = req.body;
-    console.log(`Username from client: ${username}\nHash from client:\t\t\t${password}`);
+    console.log(`Username from client: ${username}\nHash from client:\t\t${password}`);
     if (!username || !password) {
         return res.status(400).json({
             code: 400,
@@ -49,12 +58,12 @@ app.post("/login", (req, res) => {
                 return element.username === username;
             });
             if (user) {
-                console.log("login salt:" + user.salt.toString("hex"));
+                console.log(`Login salt:\t\t\t${user.salt.toString("hex")}`);
                 crypto.pbkdf2(password, user.salt.toString("hex"), 100000, 64, "sha512", (err, hash) => {
                     if (err) {
                         throw err;
                     }
-                    console.log(`Hash from database:\t\t\t${user.hash}`);
+                    console.log(`Hash from database:\t\t${user.hash}`);
                     console.log(`Hash generated on server:\t${hash.toString("hex")}`);
                     if (user.hash === hash.toString("hex")) {
                         return res.json({
@@ -160,7 +169,10 @@ app.use("*", (req, res) => {
 });
 
 // Start up server listening to requests made to an IP and port.
-const server = app.listen(process.env.PORT | 3000, process.env.IP | "localhost", () => {
+const server = https.createServer(sslOptions, app).listen(process.env.PORT | 443, process.env.IP | "localhost", () => {
     const {address, port} = server.address();
-    console.log(`Authentication server listening to request made to 'http://${(address === '::') ? "localhost" : address}:${port}'`);
+    console.log(`Authentication server listening to request made to 'https://${(address === '::') ? "localhost" : address}:${port}'`);
 });
+
+// Redirect http to https
+// TODO: Maybe?
