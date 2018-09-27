@@ -7,7 +7,6 @@
   "scripts": {
     "start": "node ./index",
     "seed": "node ./seeds"
-
   },
   "repository": {
     "type": "git",
