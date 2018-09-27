@@ -83,7 +83,7 @@ app.post("/login", (req, res) => {
                     console.log(`Hash generated on server:\t${hash.toString("hex")}`);
                     if (user.hash === hash.toString("hex")) {
                         // ExpiresIn: Short lived is more secure.
-                        jwt.sign({username}, process.env.SECRET_TOKEN, {expiresIn: '24h'}, (err, token) => {
+                        jwt.sign({username}, process.env.SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                             if (err) {
                                 console.error(`Error signing JWT\n${err}`);
                                 return res.status(500).json({
@@ -95,7 +95,7 @@ app.post("/login", (req, res) => {
                             // MaxAge: No longer than token lifetime, for better security.
                             // Secure: Instructs browser to only send the cookie over HTTPS connection.
                             // HttpOnly: Only accessible over HTTP/HTTPS, not accessible through client side javascript.
-                            res.cookie("token", `Bearer ${token}`, {maxAge: 24 * 60 * 60, secure: true, httpOnly: true, signed: true});
+                            res.cookie("token", `Bearer ${token}`, {maxAge: 60 * 60, secure: true, httpOnly: true, signed: true});
                             console.log(`Token: ${token}`);
                             return res.json({
                                 code: 200,
