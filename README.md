@@ -1,4 +1,4 @@
-#Setup
+# Setup
 Run the following to install dependencies, setup '.env' file and start the server:
 ```
 npm install
