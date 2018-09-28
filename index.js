@@ -95,7 +95,7 @@ app.post("/login", (req, res) => {
                             // MaxAge: No longer than token lifetime, for better security.
                             // Secure: Instructs browser to only send the cookie over HTTPS connection.
                             // HttpOnly: Only accessible over HTTP/HTTPS, not accessible through client side javascript.
-                            res.cookie("token", `Bearer ${token}`, {maxAge: 60 * 60, secure: true, httpOnly: true, signed: true});
+                            res.cookie("token", `Bearer ${token}`, {maxAge: 60 * 60 * 1000, secure: true, httpOnly: true, signed: true});
                             console.log(`Token: ${token}`);
                             return res.json({
                                 code: 200,
@@ -202,7 +202,7 @@ app.use("*", (req, res) => {
 });
 
 // Start up server listening to requests made to an IP and port.
-const server = https.createServer(sslOptions, app).listen(process.env.PORT | 443, process.env.IP | "localhost", () => {
+const server = https.createServer(sslOptions, app).listen(process.env.PORT | 3000, process.env.IP | "localhost", () => {
     const {address, port} = server.address();
     console.log(`Authentication server listening to request made to 'https://${(address === '::') ? "localhost" : address}:${port}'`);
 });
